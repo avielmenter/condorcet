@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { List } from 'immutable';
 
+import * as Hoox from '../../data/hoox';
+
 import TextInput from './textInput';
 import DropDownEntry from './dropDownEntry';
 
@@ -138,82 +140,95 @@ type ComponentProps = {
 const DropDown: React.SFC<ComponentProps> = (props) => {
 	const { options, selected, onSelect } = props;
 
-	const [state, dispatch] = React.useReducer(reducer, {
+	const onSelectMiddleware: Hoox.Middleware<State, Action> =
+		(state: State) => (dispatch: React.Dispatch<Action>) => (action: Action) => {
+			if (action.type == "ItemSelected") {
+				const selectedItem = state.options
+					.filter(i => i[1] == action.selected)
+					.first(undefined);
+
+				if (!selectedItem)
+					return Hoox.NoOp;
+
+				dispatch(action);
+				onSelect(selectedItem[0], selectedItem[1]);
+			}
+			else if (action.type == "SelectHovered") {
+				const selectedItem = state.hovered !== undefined ?
+					state.options.get(state.hovered, undefined) :
+					undefined;
+
+				if (!selectedItem)
+					return Hoox.NoOp;
+
+				dispatch(action);
+				onSelect(selectedItem[0], selectedItem[1]);
+			}
+
+			dispatch(action);
+			return undefined;
+		};
+
+	const dispatchProps = (dispatch: React.Dispatch<Action>) => ({
+		setSelection: (selected: string) => dispatch({
+			type: "ItemSelected",
+			selected
+		}),
+		selectHovered: () => dispatch({ type: "SelectHovered" }),
+		setFilter: (filter: string) => dispatch({
+			type: "FilterChanged",
+			filter,
+			options
+		}),
+		onFocus: () => dispatch({
+			type: "FocusChanged",
+			focused: true
+		}),
+		onBlur: () => dispatch({
+			type: "FocusChanged",
+			focused: false
+		}),
+		incrementHover: () => dispatch({ type: "IncrementHover" }),
+		decrementHover: () => dispatch({ type: "DecrementHover" }),
+		optionsChanged: (options: List<[string, string]>) => dispatch({
+			type: "OptionsChanged",
+			options
+		})
+	});
+
+	const initState = {
 		options,
 		filter: "",
 		selected,
 		focused: false,
 		hovered: undefined
-	});
-
-	React.useEffect(() => dispatch({
-		type: "OptionsChanged",
-		options
-	}), [props.options]);
-
-	const setFilter = (filter: string) => dispatch({
-		type: "FilterChanged",
-		filter,
-		options
-	});
-
-	const setSelection = (selected: string) => {
-		const selectedItem = state.options
-			.filter(i => i[1] == selected)
-			.first(undefined);
-
-		if (!selectedItem)
-			return;
-
-		dispatch({
-			type: "ItemSelected",
-			selected
-		});
-
-		onSelect(selectedItem[0], selectedItem[1]);
 	};
 
-	const selectHovered = () => {
-		const selectedItem = state.hovered !== undefined ?
-			state.options.get(state.hovered, undefined) :
-			undefined;
+	const { state, actions } = Hoox.useStore(reducer, initState, dispatchProps, onSelectMiddleware);
 
-		if (!selectedItem)
-			return;
-
-		dispatch({ type: "SelectHovered" });
-
-		onSelect(selectedItem[0], selectedItem[1]);
-	}
-
-	const onFocus = () => dispatch({ type: "FocusChanged", focused: true });
-
-	const onBlur = () => dispatch({ type: "FocusChanged", focused: false });
-
-	const incrementHover = () => dispatch({ type: "IncrementHover" });
-	const decrementHover = () => dispatch({ type: "DecrementHover" });
+	React.useEffect(() => actions.optionsChanged(options), [props.options]);
 
 	const keyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		let preventDefault = true;
 
 		if (event.key.toLowerCase() == 'enter' || event.key.toLowerCase() == 'return') {
 			if (state.hovered !== undefined)
-				selectHovered();
+				actions.selectHovered();
 			else
-				setSelection(state.filter);
+				actions.setSelection(state.filter);
 
 			preventDefault = false;
 		}
 		else if (event.key.toLowerCase() == 'tab') {
 			if (state.hovered !== undefined)
-				selectHovered();
+				actions.selectHovered();
 
 			preventDefault = false;
 		}
 		else if (event.key.toLowerCase() == "arrowdown")
-			incrementHover();
+			actions.incrementHover();
 		else if (event.key.toLowerCase() == "arrowup")
-			decrementHover();
+			actions.decrementHover();
 		else
 			preventDefault = false;
 
@@ -223,14 +238,14 @@ const DropDown: React.SFC<ComponentProps> = (props) => {
 
 	return (
 		<div
-			onFocus={onFocus}
-			onBlur={onBlur}
+			onFocus={actions.onFocus}
+			onBlur={actions.onBlur}
 			style={{ position: "relative", borderBottom: "1px solid gray" }}
 		>
 			<TextInput
 				value={state.focused ? state.filter : (state.selected || "")}
 				placeholder="[Select]"
-				onChange={(event) => setFilter(event.target.value)}
+				onChange={(event) => actions.setFilter(event.target.value)}
 				onKeyDown={keyDown}
 			/>
 			<div style={{
@@ -249,7 +264,7 @@ const DropDown: React.SFC<ComponentProps> = (props) => {
 							key={"__ddentry_" + value}
 							text={text}
 							value={value}
-							onSelect={setSelection}
+							onSelect={actions.setSelection}
 							hovered={state.hovered === i}
 						/>
 					)
