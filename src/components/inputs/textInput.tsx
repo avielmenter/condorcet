@@ -8,7 +8,7 @@ type ComponentProps = {
 	autoFocus?: boolean
 }
 
-const TextInput: React.SFC<ComponentProps> = (props) => {
+const TextInput: React.FunctionComponent<ComponentProps> = (props) => {
 	const [isActive, setIsActive] = React.useState(false);
 	const inputRef = React.useRef<HTMLInputElement>(null);
 

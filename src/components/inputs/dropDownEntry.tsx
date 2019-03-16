@@ -8,7 +8,7 @@ type ComponentProps = {
 	onSelect: (v: string) => void
 }
 
-const DropDownEntry: React.SFC<ComponentProps> = (props) => {
+const DropDownEntry: React.FunctionComponent<ComponentProps> = (props) => {
 	const { text, value, onSelect, hovered } = props;
 
 	return (

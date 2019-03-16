@@ -14,7 +14,7 @@ type ComponentProps = {
 	cellStyle: React.CSSProperties
 }
 
-const PreferenceRow: React.SFC<ComponentProps> = (props) => (
+const PreferenceRow: React.FunctionComponent<ComponentProps> = (props) => (
 	<tr style={{
 		backgroundColor: props.even ? "#FFFFFF11" : "none"
 	}}>

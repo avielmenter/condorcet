@@ -4,7 +4,7 @@ type ComponentProps = {
 
 }
 
-const StageHeader: React.SFC<ComponentProps> = (props) => {
+const StageHeader: React.FunctionComponent<ComponentProps> = (props) => {
 	return (
 		<div style={{
 			textAlign: "center",

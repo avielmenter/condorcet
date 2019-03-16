@@ -23,7 +23,7 @@ const getRemainingPreferences = (candidates: Map<string, Candidate>, voter: Vote
 	.map<[string, string]>(([k, c]) => [k, c.name])
 	.toList();
 
-const PreferenceCell: React.SFC<ComponentProps> = (props) => (
+const PreferenceCell: React.FunctionComponent<ComponentProps> = (props) => (
 	<td style={{ textAlign: "center", ...props.cellStyle }}>
 		<DropDown
 			options={getRemainingPreferences(props.candidates, props.voter)}

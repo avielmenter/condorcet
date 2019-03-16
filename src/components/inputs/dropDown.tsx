@@ -137,7 +137,7 @@ type ComponentProps = {
 	onSelect: (text: string, value: string) => void
 }
 
-const DropDown: React.SFC<ComponentProps> = (props) => {
+const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 	const { options, selected, onSelect } = props;
 
 	const onSelectMiddleware: Hoox.Middleware<State, Action> =

@@ -67,7 +67,7 @@ function getResults(
 	return Map<Candidate, List<Voter>>();
 }
 
-const ResultsList: React.SFC<ComponentProps> = (props) => {
+const ResultsList: React.FunctionComponent<ComponentProps> = (props) => {
 	const { candidates, voters } = props;
 
 	const results = getResults(candidates, List<Voter>(voters));

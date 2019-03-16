@@ -4,7 +4,7 @@ type ComponentProps = {
 
 };
 
-const MainContent: React.SFC<ComponentProps> = (props) => {
+const MainContent: React.FunctionComponent<ComponentProps> = (props) => {
 	return (
 		<div style={{
 			fontSize: "16pt",

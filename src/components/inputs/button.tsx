@@ -12,7 +12,7 @@ type ComponentProps = {
 	style: "filled" | "underline"
 }
 
-const Button: React.SFC<ComponentProps> = (props) => {
+const Button: React.FunctionComponent<ComponentProps> = (props) => {
 	const buttonStyle = {
 		paddingTop: "5pt",
 		paddingBottom: "5pt",

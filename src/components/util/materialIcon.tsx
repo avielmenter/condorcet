@@ -11,7 +11,7 @@ type AttrProps = {
 
 type ComponentProps = StateProps & AttrProps;
 
-const MaterialIcon: React.SFC<ComponentProps> = (props) => {
+const MaterialIcon: React.FunctionComponent<ComponentProps> = (props) => {
 	const { icon, iconColor } = props;
 
 	const style: React.CSSProperties = {

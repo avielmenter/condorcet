@@ -17,7 +17,7 @@ type ComponentProps = {
 	setCandidates: ((candidates: Map<string, Candidate>) => void)
 };
 
-const CandidateList: React.SFC<ComponentProps> = (props) => {
+const CandidateList: React.FunctionComponent<ComponentProps> = (props) => {
 	const { candidates, setCandidates } = props;
 	const [newCandidate, setNewCandidate] = React.useState("");
 

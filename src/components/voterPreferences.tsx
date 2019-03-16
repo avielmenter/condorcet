@@ -18,7 +18,7 @@ type ComponentProps = {
 	setVoter: (i: number, v: Voter) => void
 }
 
-const VoterPreferences: React.SFC<ComponentProps> = (props) => {
+const VoterPreferences: React.FunctionComponent<ComponentProps> = (props) => {
 	const { candidates, voters, setVoter } = props;
 	const [newVoter, setNewVoter] = React.useState("");
 

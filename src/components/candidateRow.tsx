@@ -9,7 +9,7 @@ type ComponentProps = {
 	removeCandidate: () => void
 }
 
-const CandidateRow: React.SFC<ComponentProps> = (props) => {
+const CandidateRow: React.FunctionComponent<ComponentProps> = (props) => {
 	return (
 		<div style={{
 			width: "100%",
