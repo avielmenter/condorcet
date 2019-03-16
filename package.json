@@ -1,0 +1,33 @@
+{
+  "name": "condorcet",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --open --https --mode production",
+    "start:dev": "webpack-dev-server --open --https --mode development",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "postinstall": "webpack --mode production"
+  },
+  "author": "Aviel Menter",
+  "license": "MIT",
+  "dependencies": {
+    "immutable": "^4.0.0-rc.12",
+    "radium": "^0.25.1",
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1"
+  },
+  "devDependencies": {
+    "@types/radium": "^0.24.2",
+    "@types/react": "^16.8.2",
+    "@types/react-dom": "^16.8.0",
+    "file-loader": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
+  }
+}
