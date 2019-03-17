@@ -47,7 +47,7 @@ export function NoOp<Action>(_: Action): void { };
 
 // REDUCER CUSTOM HOOKS
 
-export function useStore<State, Action, DispatchProps = undefined>(
+export function useStore<State, Action>(
 	reducer: Reducer<State, Action>,
 	state: State,
 	middleware?: Middleware<State, Action> | Middleware<State, Action>[]
