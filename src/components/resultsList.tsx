@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { List, Map } from 'immutable';
 
+import { useStore, mapDispatchToProps } from '../data/store';
+
 import Voter from '../data/voter';
 import Candidate from '../data/candidate';
 
@@ -8,8 +10,7 @@ import MainContent from './display/mainContent';
 import StageHeader from './display/stageHeader';
 
 type ComponentProps = {
-	candidates: List<Candidate>,
-	voters: Voter[]
+
 }
 
 const getTentativeAssignments = (
@@ -68,9 +69,14 @@ function getResults(
 }
 
 const ResultsList: React.FunctionComponent<ComponentProps> = (props) => {
-	const { candidates, voters } = props;
+	const { state, actions } = useStore(
+		(s) => ({ ...s, candidates: s.candidates.valueSeq().toList() }),
+		mapDispatchToProps
+	);
 
-	const results = getResults(candidates, List<Voter>(voters));
+	const { candidates, voters } = state;
+
+	const results = getResults(candidates, voters);
 
 	return (
 		<MainContent>

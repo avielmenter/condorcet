@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { List, Map } from 'immutable';
 
-import Candidate from '../data/candidate';
-import Voter, { initVoter } from '../data/voter';
+import { useStore, mapDispatchToProps } from '../data/store';
+import { initVoter } from '../data/voter';
 
 import Button from './inputs/button';
 import TextInput from './inputs/textInput';
@@ -13,31 +12,17 @@ import MainContent from './display/mainContent';
 import PreferenceRow from './preferenceRow';
 
 type ComponentProps = {
-	candidates: Map<string, Candidate>,
-	voters: Voter[],
-	setVoter: (i: number, v: Voter) => void
 }
 
 const VoterPreferences: React.FunctionComponent<ComponentProps> = (props) => {
-	const { candidates, voters, setVoter } = props;
+	const { state, actions } = useStore((s) => s, mapDispatchToProps);
+
+	const { candidates, voters } = state;
 	const [newVoter, setNewVoter] = React.useState("");
 
 	const addVoter = () => {
-		setVoter(voters.length, initVoter(newVoter));
+		actions.setVoter(voters.count(), initVoter(newVoter));
 		setNewVoter("");
-	};
-
-	const setVoterSelection = (v: number, p: number, c: string) => {
-		const voter = v >= voters.length ? undefined : voters[v];
-		const candidate = candidates.get(c, undefined);
-
-		if (!voter || !candidate)
-			return;
-
-		setVoter(v, {
-			...voter,
-			preferences: voter.preferences.set(p, candidate)
-		});
 	};
 
 	const width = (100.0 / (candidates.count() + 1)) + "%";
@@ -85,10 +70,10 @@ const VoterPreferences: React.FunctionComponent<ComponentProps> = (props) => {
 						<PreferenceRow
 							key={"__voter_" + i}
 							voter={v}
+							voterIndex={i}
 							candidates={candidates}
 							even={i % 2 == 0}
 							cellStyle={{ ...allBorderStyle, width }}
-							setPreferences={(p, candidateName) => setVoterSelection(i, p, candidateName)}
 						/>
 					)}
 				</tbody>

@@ -1,35 +1,30 @@
 import * as React from 'react';
-import { List, Map } from 'immutable';
 
-import Candidate from '../data/candidate';
+import { useStore, mapDispatchToProps } from '../data/store';
 
 import CandidateRow from './candidateRow';
 
 import Button from './inputs/button';
 import TextInput from './inputs/textInput';
-import DropDown from './inputs/dropDown';
 
 import MainContent from './display/mainContent';
 import StageHeader from './display/stageHeader';
 
 type ComponentProps = {
-	candidates: Map<string, Candidate>,
-	setCandidates: ((candidates: Map<string, Candidate>) => void)
+
 };
 
 const CandidateList: React.FunctionComponent<ComponentProps> = (props) => {
-	const { candidates, setCandidates } = props;
+	const { state: candidates, actions } = useStore((s) => s.candidates, mapDispatchToProps);
 	const [newCandidate, setNewCandidate] = React.useState("");
 
-	const addCandidate = () => {
+	const add = () => {
 		if (newCandidate == "")
 			return;
 
-		setCandidates(candidates.set(newCandidate, { name: newCandidate }));
 		setNewCandidate("");
-	};
-
-	const removeCandidate = (c: Candidate) => () => setCandidates(candidates.remove(c.name));
+		actions.addCandidate(newCandidate);
+	}
 
 	return (
 		<MainContent>
@@ -47,7 +42,7 @@ const CandidateList: React.FunctionComponent<ComponentProps> = (props) => {
 					<CandidateRow
 						key={'__candidate_' + i}
 						candidate={c}
-						removeCandidate={removeCandidate(c)}
+						removeCandidate={() => actions.removeCandidate(c)}
 					/>
 				)}
 			</div>
@@ -65,14 +60,14 @@ const CandidateList: React.FunctionComponent<ComponentProps> = (props) => {
 						onChange={(event) => event.target && setNewCandidate((event.target as HTMLInputElement).value)}
 						onKeyDown={(event) => {
 							if (event.key.toLowerCase() == "enter" || event.key.toLowerCase() == "return")
-								addCandidate();
+								add();
 						}}
 						autoFocus={true}
 					/>
 				</span>
 				<Button
 					style="filled"
-					onClick={addCandidate}
+					onClick={add}
 					icon="add"
 					iconColor="var(--eton-blue)"
 				/>

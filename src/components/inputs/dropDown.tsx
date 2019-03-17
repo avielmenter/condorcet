@@ -169,7 +169,7 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 			return undefined;
 		};
 
-	const dispatchProps = (dispatch: React.Dispatch<Action>) => ({
+	const mapDispatchToProps = (dispatch: React.Dispatch<Action>) => ({
 		setSelection: (selected: string) => dispatch({
 			type: "ItemSelected",
 			selected
@@ -204,7 +204,8 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 		hovered: undefined
 	};
 
-	const { state, actions } = Hoox.useStore(reducer, initState, dispatchProps, onSelectMiddleware);
+	const store = Hoox.useStore(reducer, initState, onSelectMiddleware);
+	const { state, actions } = Hoox.useHoox(store, (s) => s, mapDispatchToProps);
 
 	React.useEffect(() => actions.optionsChanged(options), [props.options]);
 
