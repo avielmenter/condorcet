@@ -1,10 +1,9 @@
 import { List, Map } from 'immutable';
+import { createStore, Dispatch } from 'toomanyhoox';
 
 import State, { Stage } from './state';
 import Candidate from './candidate';
 import Voter from './voter';
-
-import { createStore, Dispatch } from './hoox';
 
 // UTIL
 

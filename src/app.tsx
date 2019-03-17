@@ -1,6 +1,6 @@
 import * as React from 'react';
+import { HooxProvider } from 'toomanyhoox';
 
-import { HooxProvider } from './data/hoox';
 import { store } from './data/store';
 
 import Condorcet from './components/condorcet';

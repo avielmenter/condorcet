@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { List } from 'immutable';
 
-import * as Hoox from '../../data/hoox';
+import * as Hoox from 'toomanyhoox';
 
 import TextInput from './textInput';
 import DropDownEntry from './dropDownEntry';
