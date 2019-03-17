@@ -4,19 +4,30 @@ import * as React from 'react';
 
 export type Reducer<State, Action> = (state: State, action: Action) => State;
 
-export type Dispatch<Action> = (action: Action) => void;
-export type GetDispatchProps<Action, DispatchProps> = (dispatch: Dispatch<Action>) => DispatchProps;
+export type Dispatch<Action> = React.Dispatch<Action>;
 
 export type Middleware<State, Action> = (state: State)
 	=> (dispatch: React.Dispatch<Action>)
 		=> React.Dispatch<Action>;
 
-export type Store<State, DispatchProps> = {
+export type Store<State, Action> = {
+	state: State,
+	dispatch: React.Dispatch<Action>
+}
+
+export type StoreProps<State, DispatchProps> = {
 	state: State,
 	actions: DispatchProps
 }
 
-type StoreContext<State, DispatchProps> = React.Context<Store<State, DispatchProps>>
+type StoreContext<State, Action> = React.Context<Store<State, Action>>;
+
+type StoreConfig<State, Action> = {
+	reducer: Reducer<State, Action>,
+	state: State,
+	middleware?: Middleware<State, Action> | Middleware<State, Action>[],
+	context: StoreContext<State, Action>
+};
 
 // UTIL
 
@@ -32,16 +43,15 @@ export function combineReducers<S, A>(reducers: { [K in keyof S]: Reducer<S, A> 
 	}
 }
 
-export function NoOp<Action>(_: Action) { };
+export function NoOp<Action>(_: Action): void { };
 
 // REDUCER CUSTOM HOOKS
 
-export function useStore<State, Action, DispatchProps>(
+export function useStore<State, Action, DispatchProps = undefined>(
 	reducer: Reducer<State, Action>,
 	state: State,
-	getDispatchProps: GetDispatchProps<Action, DispatchProps>,
 	middleware?: Middleware<State, Action> | Middleware<State, Action>[]
-): Store<State, DispatchProps> {
+): Store<State, Action> {
 	const [currState, defaultDispatch] = React.useReducer(
 		reducer,
 		state
@@ -56,44 +66,65 @@ export function useStore<State, Action, DispatchProps>(
 
 	return {
 		state: currState,
-		actions: getDispatchProps(dispatch)
+		dispatch,
 	};
 };
 
-// CONTEXT CUSTOM HOOKS
-
-export function createStore<State, Action, DispatchProps>(
-	state: State,
-	getDispatchProps: GetDispatchProps<Action, DispatchProps>,
-): StoreContext<State, DispatchProps> {
-	return React.createContext({
-		state,
-		actions: getDispatchProps(NoOp)
-	});
-}
-
-type ComponentProps<State, DispatchProps> = {
-	context: StoreContext<State, DispatchProps>,
-	store: Store<State, DispatchProps>
-}
-
-export const HooxProvider: <State, DispatchProps>(
-	props: ComponentProps<State, DispatchProps> & { children?: React.ReactNode }
-) => React.ReactElement<any> = (props) => (
-	<props.context.Provider value={props.store}>
-		{props.children}
-	</props.context.Provider>
-);
-
-export function useHoox<State, DispatchProps, MappedState = State, MappedDispatch = DispatchProps>(
-	context: StoreContext<State, DispatchProps>,
+export function useHoox<State, Action, DispatchProps, MappedState = State>(
+	store: Store<State, Action> | StoreContext<State, Action>,
 	mapStateToProps: (state: State) => MappedState,
-	mapDispatchToProps: (dispatch: DispatchProps) => MappedDispatch
-): Store<MappedState, MappedDispatch> {
-	const store = React.useContext(context);
+	mapDispatchToProps: (dispatch: React.Dispatch<Action>) => DispatchProps
+): StoreProps<MappedState, DispatchProps> {
+	const hooxStore: Store<State, Action> = (store as StoreContext<State, Action>).Consumer
+		? React.useContext(store as StoreContext<State, Action>) as Store<State, Action>
+		: store as Store<State, Action>;
 
 	return {
-		state: mapStateToProps(store.state),
-		actions: mapDispatchToProps(store.actions)
+		state: mapStateToProps(hooxStore.state),
+		actions: mapDispatchToProps(hooxStore.dispatch)
 	}
 }
+
+// CONTEXT CUSTOM HOOKS
+
+export function createStore<State, Action>(
+	reducer: Reducer<State, Action>,
+	state: State,
+	middleware?: Middleware<State, Action> | Middleware<State, Action>[]
+) {
+	const dispatch: React.Dispatch<Action> = NoOp;
+
+	const store: StoreConfig<State, Action> = {
+		reducer,
+		state,
+		middleware,
+		context: React.createContext({
+			state,
+			dispatch
+		})
+	};
+
+	return {
+		store,
+		useStore: <MappedState, DispatchProps>(
+			mapStateToProps: (state: State) => MappedState,
+			mapDispatchToProps: (dispatch: React.Dispatch<Action>) => DispatchProps
+		) => useHoox(React.useContext(store.context), mapStateToProps, mapDispatchToProps)
+	};
+}
+
+type ComponentProps<State, Action> = {
+	store: StoreConfig<State, Action>
+}
+
+export const HooxProvider: <State, Action>(
+	props: ComponentProps<State, Action> & { children?: React.ReactNode }
+) => React.ReactElement<any> = (props) => {
+	const { reducer, state, middleware, context } = props.store;
+
+	return (
+		<context.Provider value={useStore(reducer, state, middleware)}>
+			{props.children}
+		</context.Provider>
+	);
+};
