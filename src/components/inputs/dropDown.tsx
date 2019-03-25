@@ -87,7 +87,8 @@ const filterChanged = (state: State, action: FilterChanged) => ({
 
 const focusChanged = (state: State, action: FocusChanged) => ({
 	...state,
-	focused: action.focused
+	focused: action.focused,
+	hovered: undefined
 });
 
 const incrementHover = (state: State, action: IncrementHover) => ({
@@ -207,6 +208,8 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 	const store = Hoox.useStore(reducer, initState, onSelectMiddleware);
 	const { state, actions } = Hoox.useHoox(store, (s) => s, mapDispatchToProps);
 
+	const ddRef = React.useRef<HTMLDivElement>(null);
+
 	React.useEffect(() => actions.optionsChanged(options), [props.options]);
 
 	const keyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -226,6 +229,14 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 
 			preventDefault = false;
 		}
+		else if (event.key.toLowerCase().startsWith('esc')) {
+			if (ddRef.current) {
+				ddRef.current.blur();
+				actions.onBlur();
+			}
+
+			preventDefault = false;
+		}
 		else if (event.key.toLowerCase() == "arrowdown")
 			actions.incrementHover();
 		else if (event.key.toLowerCase() == "arrowup")
@@ -242,6 +253,7 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 			onFocus={actions.onFocus}
 			onBlur={actions.onBlur}
 			style={{ position: "relative", borderBottom: "1px solid gray" }}
+			ref={ddRef}
 		>
 			<TextInput
 				value={state.focused ? state.filter : (state.selected || "")}
