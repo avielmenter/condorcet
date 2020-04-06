@@ -149,7 +149,7 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 					.first(undefined);
 
 				if (!selectedItem)
-					return Hoox.NoOp;
+					return;
 
 				dispatch(action);
 				onSelect(selectedItem[0], selectedItem[1]);
@@ -160,7 +160,7 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 					undefined;
 
 				if (!selectedItem)
-					return Hoox.NoOp;
+					return;
 
 				dispatch(action);
 				onSelect(selectedItem[0], selectedItem[1]);
@@ -248,6 +248,17 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 			event.preventDefault();
 	}
 
+	const filteredOptions = options.filter(([text, _value]) => text.toLowerCase().includes(state.filter.toLowerCase()));
+	const dropDownEntries = filteredOptions.map(([text, value], i) =>
+		<DropDownEntry
+			key={"__ddentry_" + value}
+			text={text}
+			value={value}
+			onSelect={actions.setSelection}
+			hovered={state.hovered === i}
+		/>
+	);
+
 	return (
 		<div
 			onFocus={actions.onFocus}
@@ -270,18 +281,7 @@ const DropDown: React.FunctionComponent<ComponentProps> = (props) => {
 				borderTop: "none",
 				width: "100%"
 			}}>
-				{options
-					.filter(([text, _value]) => text.toLowerCase().includes(state.filter.toLowerCase()))
-					.map(([text, value], i) =>
-						<DropDownEntry
-							key={"__ddentry_" + value}
-							text={text}
-							value={value}
-							onSelect={actions.setSelection}
-							hovered={state.hovered === i}
-						/>
-					)
-				}
+				{dropDownEntries}
 			</div>
 		</div>
 	);

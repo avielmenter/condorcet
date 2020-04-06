@@ -1,5 +1,7 @@
 import * as React from 'react';
-import Radium from 'radium';
+
+import '../util/useHover';
+import useHover from '../util/useHover';
 
 type ComponentProps = {
 	text: string,
@@ -11,15 +13,15 @@ type ComponentProps = {
 const DropDownEntry: React.FunctionComponent<ComponentProps> = (props) => {
 	const { text, value, onSelect, hovered } = props;
 
+	const [hoverRef, isHovered] = useHover<HTMLDivElement>();
+
 	return (
 		<div
+			ref={hoverRef}
 			style={{
 				borderBottom: "1px solid gray",
-				backgroundColor: hovered ? "#FFFFFF77" : undefined,
-				width: "100%",
-				':hover': {
-					backgroundColor: "#FFFFFF77"
-				}
+				backgroundColor: hovered || isHovered ? "#FFFFFF77" : undefined,
+				width: "100%"
 			}}
 			onMouseDownCapture={() => onSelect(value)}
 		>
@@ -30,4 +32,4 @@ const DropDownEntry: React.FunctionComponent<ComponentProps> = (props) => {
 	)
 };
 
-export default Radium(DropDownEntry);
+export default DropDownEntry;
